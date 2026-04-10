@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期市 GBTI - 期货人格测试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+:root{--bg:#0a0e1a;--card:#111827;--border:#1f2937;--gold:#f59e0b;--emerald:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;--text:#f9fafb;--muted:#9ca3af;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.bg-glow{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:0.07;pointer-events:none;z-index:0}
+.bg-glow-1{background:var(--gold);top:-200px;left:-100px}
+.bg-glow-2{background:var(--emerald);bottom:-200px;right:-100px}
+.container{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:20px 16px 60px}
+.header{text-align:center;padding:40px 0 32px}
+.badge{display:inline-block;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:4px 14px;border-radius:100px;margin-bottom:20px}
+.title-main{font-size:52px;font-weight:900;line-height:1.1;letter-spacing:-2px;background:linear-gradient(135deg,#fbbf24,#f59e0b,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.title-sub{font-size:18px;font-weight:700;color:var(--emerald);letter-spacing:6px;text-transform:uppercase;margin-bottom:16px}
+.tagline{font-size:14px;color:var(--muted);line-height:1.8;max-width:480px;margin:0 auto}
+.progress-wrap{margin-bottom:28px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--emerald));border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:16px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:slideIn .4s ease}
+.start-screen{text-align:center}
+.start-screen .emoji{font-size:64px;margin-bottom:16px;display:block;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.start-screen h2{font-size:22px;font-weight:700;margin-bottom:12px}
+.start-screen p{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:24px}
+.disclaimer{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:12px;padding:12px 16px;font-size:12px;color:#fcd34d;margin-bottom:28px;line-height:1.6}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.type-mini{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;font-size:12px}
+.type-mini-icon{font-size:28px;display:block;margin-bottom:6px}
+.type-mini-name{font-weight:700;font-size:13px;display:block;margin-bottom:2px}
+.type-mini-en{font-size:10px;color:var(--muted);letter-spacing:1px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;box-shadow:0 4px 20px rgba(245,158,11,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,158,11,.4)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-secondary:hover{border-color:var(--muted);color:var(--text)}
+.btn-wrap{text-align:center;margin-top:24px}
+.q-number{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.q-text{font-size:18px;font-weight:700;line-height:1.6;margin-bottom:24px}
+.options{display:flex;flex-direction:column;gap:10px}
+.option{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:12px}
+.option:hover{border-color:var(--gold);background:rgba(245,158,11,.06);transform:translateX(4px)}
+.option.selected{border-color:var(--gold);background:rgba(245,158,11,.12)}
+.option-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.option.selected .option-dot{border-color:var(--gold);background:var(--gold)}
+.option.selected .option-dot::after{content:'✓';font-size:11px;color:#000;font-weight:900}
+.option-label{font-size:15px;font-weight:500;line-height:1.5}
+@keyframes pop{0%{transform:scale(.8);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.result-hero{text-align:center;padding:20px 0 8px}
+.result-emoji{font-size:72px;margin-bottom:16px;display:block}
+.result-type-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:4px 16px;border-radius:100px;margin-bottom:12px;color:#000}
+.result-type-name{font-size:38px;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
+.result-subtitle{font-size:16px;color:var(--muted);margin-bottom:20px}
+.score-section{margin:24px 0}
+.score-item{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.score-name{font-size:13px;font-weight:500;width:120px;flex-shrink:0}
+.score-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:8px;overflow:hidden}
+.score-bar{height:100%;border-radius:8px;transition:width 1s ease}
+.score-pct{font-size:12px;font-weight:700;width:36px;text-align:right}
+.traits{margin:24px 0}
+.trait-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6}
+.trait-icon{flex-shrink:0;font-size:18px}
+.trait-text{color:var(--muted)}
+.trait-text strong{color:var(--text)}
+.retake{text-align:center;margin-top:24px;padding-top:24px;border-top:1px solid var(--border)}
+.quote{background:rgba(255,255,255,.04);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:14px 18px;font-size:14px;color:var(--muted);font-style:italic;margin:16px 0;line-height:1.7}
+.type-hedge{color:var(--emerald)}.type-trend{color:var(--blue)}.type-swing{color:var(--purple)}.type-scalp{color:var(--cyan)}.type-margin{color:var(--red)}.type-roll{color:var(--gold)}
+.bg-hedge{background:linear-gradient(135deg,#10b981,#059669)}.bg-trend{background:linear-gradient(135deg,#3b82f6,#2563eb)}.bg-swing{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}.bg-scalp{background:linear-gradient(135deg,#06b6d4,#0891b2)}.bg-margin{background:linear-gradient(135deg,#ef4444,#dc2626)}.bg-roll{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.hidden{display:none!important}
+
+/* ====== Mobile Responsive ====== */
+@media screen and (max-width: 600px) {
+  .container { padding: 0 12px 40px; }
+
+  /* Header */
+  .header { padding: 28px 0 20px; }
+  .badge { font-size: 10px; letter-spacing: 2px; padding: 3px 10px; }
+  .title-main { font-size: 38px; letter-spacing: -1px; }
+  .title-sub { font-size: 13px; letter-spacing: 4px; }
+  .tagline { font-size: 13px; }
+
+  /* Card */
+  .card {
+    padding: 20px 16px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  }
+
+  /* Start screen */
+  .start-screen .emoji { font-size: 52px; }
+  .start-screen h2 { font-size: 20px; }
+  .start-screen p { font-size: 13px; }
+  .type-grid { gap: 8px; }
+  .type-mini { padding: 10px 8px; }
+  .type-mini-icon { font-size: 24px; }
+  .type-mini-name { font-size: 12px; }
+  .type-mini-en { font-size: 9px; }
+
+  /* Buttons */
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 24px;
+    font-size: 15px;
+    border-radius: 12px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .btn-wrap { margin-top: 20px; }
+
+  /* Progress */
+  .progress-wrap { margin-bottom: 20px; }
+
+  /* Questions */
+  .q-number { font-size: 11px; }
+  .q-text { font-size: 16px; margin-bottom: 18px; line-height: 1.6; }
+  .option {
+    padding: 14px 14px;
+    min-height: 52px;
+    border-radius: 12px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .option:hover { transform: none; }
+  .option:active { transform: scale(0.98); }
+  .option.selected { transform: none; }
+  .option-dot { width: 22px; height: 22px; margin-top: 3px; }
+  .option-label { font-size: 14px; line-height: 1.5; }
+
+  /* Result */
+  .result-hero { padding: 12px 0 4px; }
+  .result-emoji { font-size: 56px; }
+  .result-type-name { font-size: 28px; }
+  .result-subtitle { font-size: 14px; }
+  .quote { font-size: 13px; padding: 12px 14px; }
+
+  /* Score bars */
+  .score-section { margin: 18px 0; }
+  .score-name { font-size: 12px; width: 80px; }
+  .score-pct { font-size: 11px; width: 32px; }
+
+  /* Traits */
+  .traits { margin: 18px 0; }
+  .trait-item { font-size: 13px; padding: 10px 0; }
+  .trait-icon { font-size: 16px; }
+}
+
+@media screen and (max-width: 380px) {
+  .title-main { font-size: 32px; }
+  .type-grid { grid-template-columns: 1fr 1fr; }
+  .q-text { font-size: 15px; }
+  .option-label { font-size: 13px; }
+  .result-type-name { font-size: 24px; }
+}
+
+/* Safe area for notched phones */
+@supports (padding: max(0px)) {
+  .container {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+  }
+  .btn-wrap { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="container">
+  <div class="header">
+    <div class="badge">Futures Trading Personality</div>
+    <div class="title-main">期市 GBTI</div>
+    <div class="title-sub">Futures Trading Personality</div>
+    <p class="tagline">20道题，扒光你的交易人格。<br>你不是在交易，你是在接受诊断。</p>
+  </div>
+  <div class="progress-wrap hidden" id="progressWrap">
+    <div class="progress-label"><span id="qLabel">第 1 题</span><span id="pctLabel">1/20</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:5%"></div></div>
+  </div>
+  <div class="card" id="mainCard">
+    <!-- START -->
+    <div class="start-screen" id="startScreen">
+      <span class="emoji">📊</span>
+      <h2>测测你的期货交易人格</h2>
+      <p>期货市场，专治各种不服。<br>20道灵魂拷问，找到你在期货市场的真实人设。</p>
+      <div class="type-grid">
+        <div class="type-mini"><span class="type-mini-icon">🛡️</span><span class="type-mini-name type-hedge">对冲侠</span><span class="type-mini-en">HEDGE_WARRIOR</span></div>
+        <div class="type-mini"><span class="type-mini-icon">🚀</span><span class="type-mini-name type-trend">趋势猎手</span><span class="type-mini-en">TREND_RIDER</span></div>
+        <div class="type-mini"><span class="type-mini-icon">🔄</span><span class="type-mini-name type-swing">区间摆荡</span><span class="type-mini-en">SWING_MASTER</span></div>
+        <div class="type-mini"><span class="type-mini-icon">⚡</span><span class="type-mini-name type-scalp">炒单狂人</span><span class="type-mini-en">SCALP_FURY</span></div>
+        <div class="type-mini"><span class="type-mini-icon">🎰</span><span class="type-mini-name type-margin">杠杆赌徒</span><span class="type-mini-en">MARGIN_CALL</span></div>
+        <div class="type-mini"><span class="type-mini-icon">📅</span><span class="type-mini-name type-roll">换月漂移</span><span class="type-mini-en">ROLL_OVER</span></div>
+      </div>
+      <div class="disclaimer">⚠️ 本测试纯属娱乐，请勿用于投资建议、招聘面试、相亲体检、婚姻审判或证明你真的懂期货。</div>
+      <div class="btn-wrap"><button class="btn btn-primary" id="startBtn">开始测试 →</button></div>
+    </div>
+    <!-- QUESTION -->
+    <div id="questionScreen" class="hidden">
+      <div class="q-number" id="qNumber">第 1 题</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="btn-wrap"><button class="btn btn-primary" id="nextBtn" disabled>下一题 →</button></div>
+    </div>
+    <!-- RESULT -->
+    <div id="resultScreen" class="hidden">
+      <div class="result-hero" id="resultHero"></div>
+      <div class="score-section" id="scoreSection"></div>
+      <div class="traits" id="traits"></div>
+      <div class="retake"><button class="btn btn-secondary" id="retakeBtn">🔄 重新测试</button></div>
+    </div>
+  </div>
+</div>
+<script>
+const questions=[
+{q:"你持仓隔夜后最可能出现的情况是？",opts:[
+{text:"设好止损安心睡觉，第二天涨跌都认",score:"hedge"},
+{text:"半夜爬起来看外盘，被行情牵着走",score:"trend"},
+{text:"算了，反正明天开盘就知道结果了",score:"swing"},
+{text:"什么？还能持仓过夜？",score:"scalp"},
+{text:"满仓隔夜，第二天开盘就是生死局",score:"margin"},
+{text:"先看看主力合约还有几天到期",score:"roll"}
+]},
+{q:"做螺纹钢期货，你最关注哪个指标？",opts:[
+{text:"库存数据、开工率和下游需求",score:"hedge"},
+{text:"均线多头排列、趋势线突破",score:"trend"},
+{text:"最近20天的价格区间支撑压力",score:"swing"},
+{text:"盘口深度、大单成交时机",score:"scalp"},
+{text:"保证金率会不会变，越高越刺激",score:"margin"},
+{text:"近月合约与远月合约的价差",score:"roll"}
+]},
+{q:"你做期货的主要目的是？",opts:[
+{text:"套期保值，锁定成本或利润",score:"hedge"},
+{text:"抓住大趋势，赚趋势的钱",score:"trend"},
+{text:"在震荡行情中高抛低吸",score:"swing"},
+{text:"每天进出，靠胜率积少成多",score:"scalp"},
+{text:"快速翻倍，改变命运",score:"margin"},
+{text:"捕捉交割月前后的价差机会",score:"roll"}
+]},
+{q:"行情突然向你有利的方向大幅波动，你会？",opts:[
+{text:"检查是否需要增加保证金，防止被强平",score:"hedge"},
+{text:"顺势加仓，让利润奔跑",score:"trend"},
+{text:"先止盈一半，剩下的再看",score:"swing"},
+{text:"立刻全部平仓，落袋为安",score:"scalp"},
+{text:"全仓all in，目标财务自由",score:"margin"},
+{text:"检查远近月价差是否在回归",score:"roll"}
+]},
+{q:"你盯盘时最常做的事是？",opts:[
+{text:"看现货市场和期货的基差变化",score:"hedge"},
+{text:"等趋势信号，确认趋势延续",score:"trend"},
+{text:"数K线，找超买超卖信号",score:"swing"},
+{text:"盯着盘口每一笔成交",score:"scalp"},
+{text:"盯盘口，杠杆已经拉满",score:"margin"},
+{text:"算换月移仓的成本和时机",score:"roll"}
+]},
+{q:"收到期货公司追加保证金的通知时，你的第一反应是？",opts:[
+{text:"立刻检查账户，评估是否需要减仓",score:"hedge"},
+{text:"这是正常波动，不慌，继续持有",score:"trend"},
+{text:"考虑在支撑位补点仓拉均价",score:"swing"},
+{text:"直接平仓，保住本金最重要",score:"scalp"},
+{text:"保证金通知？梭哈的时候就准备好了",score:"margin"},
+{text:"正好，借机移仓到远月合约",score:"roll"}
+]},
+{q:"你同时最多会关注几个品种？",opts:[
+{text:"1-2个，与我的产业链深度相关",score:"hedge"},
+{text:"3-5个，跨品种对冲组合",score:"trend"},
+{text:"多个，网格化覆盖各板块",score:"swing"},
+{text:"尽量少，全神贯注盯1个",score:"scalp"},
+{text:"越多越好，反正都是赌",score:"margin"},
+{text:"主力+次主力，关注全部活跃合约",score:"roll"}
+]},
+{q:"你认为期货和股票最大的区别是？",opts:[
+{text:"可以双向交易，对冲风险",score:"hedge"},
+{text:"T+0，随时可以纠错",score:"trend"},
+{text:"有到期日，不能无限期持有",score:"swing"},
+{text:"手续费便宜，短线交易友好",score:"scalp"},
+{text:"杠杆大，一块钱能当十块用",score:"margin"},
+{text:"主力合约会轮换，需要不断换月",score:"roll"}
+]},
+{q:"你做一笔交易，平均持仓时间是？",opts:[
+{text:"几天到几周，对冲现货需求",score:"hedge"},
+{text:"几周甚至几个月，等趋势走完",score:"trend"},
+{text:"1-5天，在一个波段内进出",score:"swing"},
+{text:"几分钟到几十分钟",score:"scalp"},
+{text:"无所谓，看心情和行情",score:"margin"},
+{text:"合约到期前两周内必须处理",score:"roll"}
+]},
+{q:"你通常怎么判断入场时机？",opts:[
+{text:"基差偏离合理区间时入场套保",score:"hedge"},
+{text:"均线金叉/死叉，或趋势线突破",score:"trend"},
+{text:"价格触及布林带上轨/下轨",score:"swing"},
+{text:"盘口出现大单异动瞬间入场",score:"scalp"},
+{text:"凭感觉，感觉来了就进",score:"margin"},
+{text:"近月合约持仓量下降时移仓",score:"roll"}
+]},
+{q:"你账户里亏损最大的一笔是？",opts:[
+{text:"控制在保证金的50%以内",score:"hedge"},
+{text:"趋势没结束，扛过几次大幅回撤",score:"trend"},
+{text:"止损设在2%，严格执行",score:"swing"},
+{text:"每笔亏损不超过手续费的3倍",score:"scalp"},
+{text:"本金的三分之一打底，习惯了",score:"margin"},
+{text:"换月成本比亏损还高，很无奈",score:"roll"}
+]},
+{q:"你最喜欢交易哪类品种？",opts:[
+{text:"农产品（大豆、玉米），熟悉产业链",score:"hedge"},
+{text:"趋势强的品种：原油、黄金、螺纹",score:"trend"},
+{text:"震荡明显的品种：橡胶、棉花",score:"swing"},
+{text:"波动大的品种：原油、镍、股指",score:"scalp"},
+{text:"波动越大越好，涨跌都赚",score:"margin"},
+{text:"工业品序列，移仓规律清晰",score:"roll"}
+]},
+{q:"节假日交易所提高保证金，你的态度是？",opts:[
+{text:"提前减仓，控制风险敞口",score:"hedge"},
+{text:"趋势强劲的话，轻仓继续持有",score:"trend"},
+{text:"节前平仓，节后再战",score:"swing"},
+{text:"无所谓，反正我都是日内",score:"scalp"},
+{text:"提高保证金？正好满仓梭",score:"margin"},
+{text:"提前计算好换月成本",score:"roll"}
+]},
+{q:"你手机里的期货APP最常看哪个页面？",opts:[
+{text:"持仓盈亏 + 保证金率",score:"hedge"},
+{text:"K线图，走势一目了然",score:"trend"},
+{text:"分时图，找买卖点",score:"swing"},
+{text:"盘口和成交明细",score:"scalp"},
+{text:"浮盈浮亏数字跳动",score:"margin"},
+{text:"合约列表，看主力合约月份",score:"roll"}
+]},
+{q:"你做期货多久了？",opts:[
+{text:"3年以上，主要做套利对冲",score:"hedge"},
+{text:"2年以上，追趋势交过不少学费",score:"trend"},
+{text:"1年以上，摸清了几个品种的脾气",score:"swing"},
+{text:"几个月，已经开始稳定盈利",score:"scalp"},
+{text:"1个月，但我已经翻倍了",score:"margin"},
+{text:"每次换月都要重新适应",score:"roll"}
+]},
+{q:"你身边人对你期货交易的态度是？",opts:[
+{text:"支持，因为确实在帮公司控制成本",score:"hedge"},
+{text:"不理解，为什么不止盈",score:"trend"},
+{text:"跟着我做了几次，亏了不敢吭声",score:"swing"},
+{text:"他们只看到我天天盯着手机",score:"scalp"},
+{text:"爸妈已经不知道我借钱在炒",score:"margin"},
+{text:"经常问我换月要不要操作",score:"roll"}
+]},
+{q:"你认为期货市场的本质是？",opts:[
+{text:"风险管理工具，价格发现的场所",score:"hedge"},
+{text:"趋势的战场，顺势者赢",score:"trend"},
+{text:"人性的博弈，人性的弱点就是利润",score:"swing"},
+{text:"速度的比拼，手慢必输",score:"scalp"},
+{text:"赌场，反正都是零和游戏",score:"margin"},
+{text:"不同月份之间的价差游戏",score:"roll"}
+]},
+{q:"你被止损扫出来之后，通常会？",opts:[
+{text:"检查逻辑，修正模型后再次入场",score:"hedge"},
+{text:"等新的趋势信号，继续追",score:"trend"},
+{text:"等价格回到区间内再接回",score:"swing"},
+{text:"反手开空/多，继续做回来",score:"scalp"},
+{text:"加大仓位，一次性补回来",score:"margin"},
+{text:"正好，持仓到期了换个合约",score:"roll"}
+]},
+{q:"看到别人做原油期货赚了大钱，你会？",opts:[
+{text:"先研究供需基本面，不盲目跟",score:"hedge"},
+{text:"研究他的入场逻辑，借鉴思路",score:"trend"},
+{text:"看看是否在布林带操作区间内",score:"swing"},
+{text:"看看能不能找到类似的机会",score:"scalp"},
+{text:"他敢做，我为什么不敢？上！",score:"margin"},
+{text:"先看看换月合约定价合不合理",score:"roll"}
+]},
+{q:"最后一道：如果你只能选择一个标签来形容你的交易风格，你会选？",opts:[
+{text:"套保商：我来这里是为了控制风险",score:"hedge"},
+{text:"趋势跟踪者：让利润奔跑，截断亏损",score:"trend"},
+{text:"区间玩家：高抛低吸，波段为王",score:"swing"},
+{text:"炒单手：速度就是一切，手起刀落",score:"scalp"},
+{text:"赌徒：人生难得几回搏",score:"margin"},
+{text:"移仓客：不是在换月，就是在换月的路上",score:"roll"}
+]}
+];
+const typeData={
+hedge:{name:"对冲侠",en:"HEDGE_WARRIOR",emoji:"🛡️",color:"var(--emerald)",bgClass:"bg-hedge",desc:"你是期货市场的理性派。期货对你而言首先是一种风险管理工具，而不是暴富机器。",quote:"\"我不是来赌博的，我是来控制成本的。\"",
+traits:["基差思维：现货与期货的价差是你的核心关注点","风控优先：仓位管理严明，亏损有底线","产业链视角：深入研究供需关系和现货市场","耐心持仓：可以持有数周，等待逻辑兑现","实业思维：可能是实体企业经营者或专业机构"]},
+trend:{name:"趋势猎手",en:"TREND_RIDER",emoji:"🚀",color:"var(--blue)",bgClass:"bg-trend",desc:"你相信趋势是你的朋友。期货市场的大机会来自大趋势，你擅长识别并全程参与。",quote:"\"趋势不结束，我就不到站。\"",
+traits:["顺势而为：均线、K线是你的指路明灯","让利润跑：趋势不结束，绝不止盈","扛得住回撤：知道趋势中的回调是正常的","趋势确认：喜欢等趋势走出来再入场","大局观：关注宏观周期和产业链大方向"]},
+swing:{name:"区间摆荡者",en:"SWING_MASTER",emoji:"🔄",color:"var(--purple)",bgClass:"bg-swing",desc:"你专攻震荡行情，在高抛低吸中积累利润。期货的到期日对你而言是优势，不是束缚。",quote:"\"高抛低吸，波段为王。\"",
+traits:["区间思维：价格在布林带上下轨之间摆动是你的机会","严格止损：每笔交易都有明确的止盈止损","耐心等待：不出信号绝不出手","波段操作：持仓1-5天，不恋战","技术分析：RSI、布林带是常用工具"]},
+scalp:{name:"炒单狂人",en:"SCALP_FURY",emoji:"⚡",color:"var(--cyan)",bgClass:"bg-scalp",desc:"速度就是一切。你是期货市场的手速王者，期货T+0对你而言是最大的优势。",quote:"\"手起刀落，不留隔夜仓。\"",
+traits:["极致短线：持仓以分钟计，绝不过夜","盘口为王：大单异动是你的入场信号","胜率优先：靠高胜率积少成多","手续费敏感：选择低费率品种，降低摩擦成本","专注品种：只盯1-2个最熟悉的品种"]},
+margin:{name:"杠杆赌徒",en:"MARGIN_CALL",emoji:"🎰",color:"var(--red)",bgClass:"bg-margin",desc:"你把期货的杠杆用到了极致——或者说，用到了极限边缘。保证金对你而言只是数字。",quote:"\"人生难得几回搏，期货不改命我不回头。\"",
+traits:["满仓梭哈：账户里几乎不留闲置资金","杠杆拉满：保证金用尽是常态","高风险偏好：波动越大越兴奋","不服输：亏损后倾向加仓摊平成本","一夜暴富心理：目标是快速翻倍"]},
+roll:{name:"换月漂移者",en:"ROLL_OVER",emoji:"📅",color:"var(--gold)",bgClass:"bg-roll",desc:"你可能是期货市场里最懂合约序列的人。别人盯价格，你盯的是整个合约曲线。",quote:"\"不是在换月，就是在换月的路上。\"",
+traits:["合约思维：关注的是整个合约序列的价差结构","换月专家：深谙远近月移仓的节奏和成本","套利视角：经常做跨期套利或跨品种对冲","耐心布局：会在远月埋伏，等待换月行情","风险对冲：换月时机的把握是你的核心竞争力"]}
+};
+let cur=0,answers=[];
+
+document.getElementById('startBtn').onclick=()=>{
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('questionScreen').classList.remove('hidden');
+  document.getElementById('progressWrap').classList.remove('hidden');
+  renderQ();
+};
+document.getElementById('retakeBtn').onclick=()=>location.reload();
+document.getElementById('nextBtn').onclick=()=>{
+  if(answers[cur]===undefined)return;
+  if(cur<questions.length-1){
+    cur++;
+    renderQ();
+    document.getElementById('mainCard').scrollIntoView({behavior:'smooth',block:'start'});
+  }else{
+    showResult();
+  }
+};
+
+function renderQ(){
+  const q=questions[cur];
+  document.getElementById('qNumber').textContent='第 '+(cur+1)+' 题';
+  document.getElementById('qLabel').textContent='第 '+(cur+1)+' 题';
+  document.getElementById('pctLabel').textContent=(cur+1)+'/20';
+  document.getElementById('progressFill').style.width=((cur+1)/20*100)+'%';
+  document.getElementById('qText').textContent=q.q;
+  const opts=document.getElementById('options');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const div=document.createElement('div');
+    div.className='option';
+    div.innerHTML='<div class="option-dot"></div><div class="option-label">'+o.text+'</div>';
+    div.onclick=()=>selectOpt(div,o.score);
+    opts.appendChild(div);
+  });
+  document.getElementById('nextBtn').disabled=true;
+}
+
+function selectOpt(el,score){
+  document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[cur]=score;
+  document.getElementById('nextBtn').disabled=false;
+  document.getElementById('nextBtn').textContent=cur===questions.length-1?'查看结果 🛡️':'下一题 →';
+}
+
+function nextQuestion(){
+  if(answers[cur]===undefined)return;
+  if(cur<questions.length-1){
+    cur++;
+    renderQ();
+    document.getElementById('mainCard').scrollIntoView({behavior:'smooth',block:'start'});
+  }else{
+    showResult();
+  }
+}
+
+function showResult(){
+  document.getElementById('questionScreen').classList.add('hidden');
+  document.getElementById('progressWrap').classList.add('hidden');
+  document.getElementById('resultScreen').classList.remove('hidden');
+  document.getElementById('resultScreen').classList.add('result-hero');
+
+  const counts={};
+  answers.forEach(a=>counts[a]=(counts[a]||0)+1);
+  const topType=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+  const td=typeData[topType];
+
+  document.getElementById('resultHero').innerHTML=`
+    <span class="result-emoji">${td.emoji}</span>
+    <div class="result-type-badge ${td.bgClass}">你的期货人格</div>
+    <div class="result-type-name" style="color:${td.color}">${td.name}</div>
+    <div class="result-subtitle">${td.en}</div>
+    <p style="font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:8px">${td.desc}</p>
+    <div class="quote">${td.quote}</div>
+  `;
+
+  const total=answers.length;
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  let scoreHtml='<div style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)">各人格匹配度</div>';
+  const typeOrder=['hedge','trend','swing','scalp','margin','roll'];
+  const typeNames={hedge:'对冲侠',trend:'趋势猎手',swing:'区间摆荡',scalp:'炒单狂人',margin:'杠杆赌徒',roll:'换月漂移'};
+  const typeColors={hedge:'#10b981',trend:'#3b82f6',swing:'#8b5cf6',scalp:'#06b6d4',margin:'#ef4444',roll:'#f59e0b'};
+  typeOrder.forEach(t=>{
+    if(!counts[t])return;
+    const pct=Math.round(counts[t]/total*100);
+    scoreHtml+=`<div class="score-item">
+      <div class="score-name" style="color:${typeColors[t]}">${typeNames[t]}</div>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:0%;background:${typeColors[t]}" data-width="${pct}%"></div></div>
+      <div class="score-pct">${pct}%</div>
+    </div>`;
+  });
+  document.getElementById('scoreSection').innerHTML=scoreHtml;
+  setTimeout(()=>{
+    document.querySelectorAll('.score-bar').forEach(bar=>bar.style.width=bar.dataset.width);
+  },100);
+
+  let traitsHtml='<div style="font-size:14px;font-weight:700;margin-bottom:4px">交易特征</div>';
+  td.traits.forEach(t=>{
+    traitsHtml+=`<div class="trait-item"><span class="trait-icon">▸</span><span class="trait-text">${t}</span></div>`;
+  });
+  document.getElementById('traits').innerHTML=traitsHtml;
+  document.getElementById('mainCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>
